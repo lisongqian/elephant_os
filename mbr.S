@@ -30,22 +30,22 @@ mov dx,0x184f                   ;右下角:(80,25)
 ;VGA文本模式中，一行只能容纳80字节，共25行
 ;下标从0开始，所以0x18=24，0x4f=79
 int 0x10                        ;int 0x10
-;输出背景色为蓝色，前景色为红色，并且跳动的字符串“1 MBR”
-;--------------------------------------------------------------------------
+
+;输出字符串“1 MBR”
 mov byte [gs:0x00], '1'
-mov byte [gs:0x01], 0x92
+mov byte [gs:0x01], 0xA4
 
 mov byte [gs:0x02], ' '
-mov byte [gs:0x03], 0x12
+mov byte [gs:0x03], 0xA4
 
 mov byte [gs:0x04], 'M'
-mov byte [gs:0x05], 0x12
+mov byte [gs:0x05], 0xA4    ;A表示绿色背景闪烁，4表示前景色红色
 
 mov byte [gs:0x06], 'B'
-mov byte [gs:0x07], 0x12
+mov byte [gs:0x07], 0xA4
 
 mov byte [gs:0x08], 'R'
-mov byte [gs:0x09], 0x12
+mov byte [gs:0x09], 0xA4
 
 mov eax ,LOADER_START_SECTOR    ;起始扇区lba地址
 mov bx  ,LOADER_BASE_ADDR       ;写入的地址
