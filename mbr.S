@@ -52,7 +52,7 @@ mov bx  ,LOADER_BASE_ADDR       ;写入的地址
 mov cx  ,4                      ;待读入的扇区数
 call rd_disk_m_16               ;以下读取程序的起始部分
 
-jmp LOADER_BASE_ADDR			;跳转到Loader
+jmp LOADER_BASE_ADDR +0x300			;跳转到Loader
 
 ;--------------------------------------------------------------------------
 ;功能：读取eax=LBA扇区号
