@@ -147,5 +147,85 @@ p_mode_start:
         mov gs, ax
 
         mov byte [gs:160],'P'
+        ;创建页目录和页表并初始化页内存位图
+        call setup_page
 
-        jmp $
+        ;gdt需要放在内核里将描述符表地址&偏移量写入内存gdt_ptr，一会用新的地址加载
+        sgdt [gdt_ptr]          ;取出GDT地址和偏移信息，存放在gdt_ptr这个内存位置上
+
+        ;视频段需要放在内核里与用户进程进行共享
+        ;将gdt描述符中视频段的段基址+0xc0000000
+        mov ebx, [gdt_ptr + 2]                  ;这里gdt_ptr前2字节是偏移量，后4字节是GDT基址，先选中GDT
+        or dword [ebx + 0x18 + 4], 0xc0000000   ;一个描述符8字节，0x18处是第3个段描述符也就是视频段，修改段基址最高位为C，+4进入高4字节，用or修改即可
+
+        ;将gdt的基址加上 0xc0000000 成为内核所在的地址
+        add dword [gdt_ptr + 2 ], 0xc0000000
+        add esp, 0xc0000000     ;将栈指针同样map到内核地址,？？？
+
+        ;页目录赋值给CR3
+        mov eax, PAGE_DIR_TABLE_POS
+        mov cr3, eax
+
+        ;打开cr0的pg位（第31位）
+        mov eax, cr0
+        or eax, 0x80000000
+        mov cr0, eax
+
+        ;开启分页后，用gdt新的地址重新加载
+        lgdt [gdt_ptr]
+        mov ax, SELECTOR_VIDEO ;这里书上存在问题，寄存器没刷新直接写入，就没往虚拟内存里写入了，这里需要重新初始化一下gs寄存器
+        mov gs, ax
+        mov byte [gs:320], 'V'
+		jmp $
+
+;--------setup_page: 创建页目录和页表 --------
+setup_page:
+;1.先把页目录占用的空间逐字节清 0
+        mov ecx, 4096
+        xor esi, esi
+.clear_page_dir:
+        mov byte [PAGE_DIR_TABLE_POS + esi], 0
+        inc esi
+        loop .clear_page_dir
+
+;2.创建页目录项（Page Directory Entry)
+.create_pde:
+        mov eax, PAGE_DIR_TABLE_POS
+        add eax, 0x1000                 ;第一个页表的位置（仅次于页目录表，页目录表大小4KB）
+        mov ebx ,eax                    ;0x00101 000
+
+        ;下面将页目录项0和OxcOO都存为第一个页表的地址 ，每个页表表示4MB内存
+        ;这样Oxc03fffff(3G-3G04M)以下的地址和Ox003fffff(0-4M)以下的地址都 指向相同的页表
+        ;这是为将地址映射为内核地址做准备
+        or  eax, PG_US_U | PG_RW_W | PG_P       ;用户特权级，可读可写，存在内存
+        mov [PAGE_DIR_TABLE_POS + 0x0]  , eax   ;第一个目录项，0x00101 007
+        mov [PAGE_DIR_TABLE_POS + 0xc00], eax   ;第0xc00高10位0x300=768个页表占用的目录项，0xc00以上属于kernel空间,这里是把第769个目录页和第1个目录页指向同一个页表的物理地址：0x101000
+        ;系统实际位于0～0x100000内存地址中，将系统虚拟地址0xc00000000映射到这低1M的空间内，只需要让0xc0000000的地址指向和低1M相同的页表即可
+
+        sub eax, 0x1000
+        mov [PAGE_DIR_TABLE_POS + 0x1000], eax  ;使最后一个目录项指向页目录表自己的位置
+
+;3.创建页表项（Page Table Entry）
+        mov ecx, 256                            ;1M低端内存/每页大小4K = 256
+        mov esi, 0
+        mov edx, PG_US_U | PG_RW_W | PG_P       ;地址为0x0，属性为7，111b
+        ;这个页表项提供map地址的范围是0x0~0x100000,也就是低端1M
+.create_pte:
+        mov [ebx+esi*4], edx
+        add edx, 0x1000
+        inc esi
+        loop .create_pte                        ;低端1M内存中，物理地址=虚拟地址，这里创建了1M空间的页表项
+
+;创建内核其他页表的PDE
+        mov eax, PAGE_DIR_TABLE_POS
+        add eax, 0x2000                         ;第二个页表
+        or  eax, PG_US_U | PG_RW_W | PG_P       ;111b
+        mov ebx, PAGE_DIR_TABLE_POS
+        mov ecx, 254                            ;769~1022的所有目录项数量
+        mov esi, 769
+.create_kernel_pde:
+        mov [ebx+esi*4], eax
+        inc esi
+        add eax, 0x1000
+        loop .create_kernel_pde
+        ret
