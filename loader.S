@@ -203,7 +203,7 @@ setup_page:
         ;系统实际位于0～0x100000内存地址中，将系统虚拟地址0xc00000000映射到这低1M的空间内，只需要让0xc0000000的地址指向和低1M相同的页表即可
 
         sub eax, 0x1000
-        mov [PAGE_DIR_TABLE_POS + 0x1000], eax  ;使最后一个目录项指向页目录表自己的位置
+        mov [PAGE_DIR_TABLE_POS + 4092], eax  ;使最后一个目录项指向页目录表自己的位置
 
 ;3.创建页表项（Page Table Entry）
         mov ecx, 256                            ;1M低端内存/每页大小4K = 256
