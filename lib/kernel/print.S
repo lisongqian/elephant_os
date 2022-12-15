@@ -2,6 +2,9 @@ TI_GDT  equ     0
 RPL0    equ     0
 SELECTOR_VIDEO  equ     (0x0003 << 3) + TI_GDT + RPL0
 
+section .data
+put_int_buffer  dq  0       ;定义8字节缓冲区用于数字到字符的转换
+
 [bits 32]
 section .text
 ;---------------------------------------------------------------------
@@ -166,3 +169,67 @@ put_char:
 .put_char_done:
     popad
     ret
+
+;---------------------------------------------------------------------
+; Function: put_int
+; Description: 将小端序数字变成对应的ascii后，倒置
+; Param_Input：待打印的数字
+; Output：打印十六进制数字到屏幕
+;---------------------------------------------------------------------
+
+global put_int
+put_int:
+        pushad
+        mov ebp, esp
+        mov eax, [ebp + 4*9]    ;call 的返回地址 4 字节，pushad 占 8 个 4 字节
+        mov edx, eax            ;参数数字备份
+        mov edi, 7              ;指定在put_int_buffer中的初始偏移量
+        mov ecx, 8              ;32位数字中，十六进制数字的位数是8个
+        mov ebx, put_int_buffer
+
+;将32位数字按照16进制的形式从低位到高位逐个处理
+.based16_4bits:
+        and edx, 0x0000000F     ;取出最后一个16进制数
+        cmp edx, 9              ;判断是否大于9
+        jg .is_A2F
+        add edx, '0'            ;转换成ascii
+        jmp .store
+.is_A2F:
+        sub edx, 10
+        add edx, 'A'
+
+;数字转换成 ascii 之后，按大端顺序存储到 buffer 中
+.store:
+        mov [ebx + edi] , dl    ;加上7个字节存储，也就是存储在最前面的位置上
+        dec edi
+        shr eax, 4              ;将参数数字最后一个字符去掉
+        mov edx, eax
+        loop .based16_4bits
+
+;此时 buffer 中是 ascii 了，打印之前把高位连续数字去掉
+.ready_to_print:
+        inc edi                 ;让 edi+1 变成 0
+.skip_prefix_0:
+        cmp edi, 8              ;若已经是第九个字符了
+        je .full0               ;表示全是 0
+
+;找出连续的 0 字符，edi 作为非 0 最高位偏移
+.go_on_skip:
+        mov cl, [put_int_buffer + edi]
+        cmp cl, '0'
+        je .ready_to_print      ;等于0就跳转，判断下一位是否是字符0
+        jmp .put_each_num
+
+.full0:
+        mov cl, '0'             ;全 0 ，只打印一个 0
+
+.put_each_num:
+        push ecx                ; 此时cl中为可打印字符
+        call put_char
+        add esp, 4
+        inc edi
+        mov cl, [put_int_buffer + edi]
+        cmp edi, 8
+        jl .put_each_num
+        popad
+        ret
