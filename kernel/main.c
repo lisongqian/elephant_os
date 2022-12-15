@@ -1,5 +1,6 @@
 #include "print.h"
-int main(){
+
+int main() {
     put_char('\n');
     put_char('k');
     put_char('e');
@@ -12,6 +13,7 @@ int main(){
     put_char('2');
     put_char('\b');
     put_char('3');
-    while(1);
+    put_str("\nhello kernel\n");
+    while (1);
     return 0;
 }
