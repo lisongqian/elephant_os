@@ -11,6 +11,8 @@
 
 #define IDT_DESC_CNT 0x21	 // 目前总共支持的中断数
 
+#define EFLAGS_IF   0x00000200       // eflags寄存器中的if位为1
+#define GET_EFLAGS(EFLAG_VAR) asm volatile("pushfl; popl %0" : "=g" (EFLAG_VAR))
 /**
  * 中断门描述符结构体
  */
@@ -123,6 +125,51 @@ static void exception_init(void) {
     intr_name[17] = "#AC Alignment Check Exception";
     intr_name[18] = "#MC Machine-Check Exception";
     intr_name[19] = "#XF SIMD Floating-Point Exception";
+}
+
+/**
+ * @description 开中断
+ * @return 中断前状态
+ */
+enum intr_status intr_enable() {
+    if (INTR_ON == intr_get_status()) {
+        return INTR_ON;
+    } else {
+        asm volatile("sti");	 // 开中断,sti指令将IF位置1
+        return INTR_OFF;
+    }
+}
+
+/**
+ * @description 关中断
+ * @return 中断前的状态
+ */
+enum intr_status intr_disable() {
+    if (INTR_ON == intr_get_status()) {
+        asm volatile("cli" : : : "memory"); // 关中断,cli指令将IF位置0
+        return INTR_ON;
+    } else {
+        return INTR_OFF;
+    }
+}
+
+/**
+ * 将中断状态设置为status
+ * @param status 中断状态
+ * @return 中断前状态
+ */
+enum intr_status intr_set_status(enum intr_status status) {
+    return status & INTR_ON ? intr_enable() : intr_disable();
+}
+
+/**
+ * @description 获取当前中断状态
+ * @return 当前中断状态
+ */
+enum intr_status intr_get_status() {
+    uint32_t eflags = 0;
+    GET_EFLAGS(eflags);
+    return (EFLAGS_IF & eflags) ? INTR_ON : INTR_OFF;
 }
 
 /**
