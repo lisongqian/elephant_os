@@ -1,30 +1,79 @@
 
 ## 操作系统真象还原练习
 
-### 操作
+### 
 
-1. 创建硬盘
-```bash
-bximage
-```
-2. 编译MBR
-```bash
-nasm -I include/ -o boot/mbr.bin mbr.S
-```
-3. 将MBR写入硬盘
-```bash
-dd if=boot/mbr.bin of=hd60M.img bs=512 count=1 conv=notrunc
+```text
+.
+├── boot
+│   ├── include
+│   │   └── boot.inc
+│   ├── loader.S
+│   └── mbr.S
+├── build
+│   ├── debug.o
+│   ├── init.o
+│   ├── interrupt.o
+│   ├── kernel.bin
+│   ├── kernel.map
+│   ├── kernel.o
+│   ├── loader.bin
+│   ├── main.o
+│   ├── mbr.bin
+│   ├── print.o
+│   └── timer.o
+├── device
+│   ├── timer.c
+│   └── timer.h
+├── include
+│   └── boot.inc
+├── kernel
+│   ├── debug.c
+│   ├── debug.h
+│   ├── global.h
+│   ├── init.c
+│   ├── init.h
+│   ├── interrupt.c
+│   ├── interrupt.h
+│   ├── kernel.S
+│   ├── main.c
+├── lib
+│   ├── kernel
+│   │   ├── io.h
+│   │   ├── print.h
+│   │   └── print.S
+│   ├── stdint.h
+│   ├── string.c
+│   ├── string.h
+│   └── user
+├── tmp
+│   ├── base_asm.c
+│   ├── header.bin
+│   ├── header.S
+│   ├── kernel_compile.sh
+│   ├── loader_compile.sh
+│   ├── makefile
+│   ├── mbr_compile.sh
+│   ├── run_test
+│   ├── syscall_write_demo.sh
+│   ├── syscall_write.S
+│   └── test_compile.sh
+├── bochsrc.disk
+├── hd60M.img
+├── log_bochs.txt
+├── makefile
+├── README.md
+├── start_bochs.sh
+└── xxd.sh
 ```
 
-4. 编译loader
-```bash
-nasm -I include/ -o boot/loader.bin loader.S
-```
+### 操作说明
 
-5. 将loader写入硬盘
-```bash
-dd if=boot/loader.bin of=hd60M.img bs=512 count=1 seek=2 conv=notrunc
-```
+1. `make mbr2hd`编译MBR
+1. `make kernel2hd`编译LOADER
+2. `make all`编译KERNEL
+3. `make clean`清理中间文件
+4. `./start_bochs.sh`启动bochs调试
 
 ### 参考资料
 
