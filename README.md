@@ -5,29 +5,16 @@
 
 ```text
 .
-├── boot
+├── boot                # 系统引导目录
 │   ├── include
 │   │   └── boot.inc
 │   ├── loader.S
 │   └── mbr.S
-├── build
-│   ├── debug.o
-│   ├── init.o
-│   ├── interrupt.o
-│   ├── kernel.bin
-│   ├── kernel.map
-│   ├── kernel.o
-│   ├── loader.bin
-│   ├── main.o
-│   ├── mbr.bin
-│   ├── print.o
-│   └── timer.o
-├── device
+├── build               # 编译目录
+├── device              # 设备管理目录
 │   ├── timer.c
 │   └── timer.h
-├── include
-│   └── boot.inc
-├── kernel
+├── kernel              # 内核实现目录
 │   ├── debug.c
 │   ├── debug.h
 │   ├── global.h
@@ -37,8 +24,12 @@
 │   ├── interrupt.h
 │   ├── kernel.S
 │   ├── main.c
-├── lib
+│   ├── memory.c
+│   ├── memory.h
+├── lib                 # 通用类目录
 │   ├── kernel
+│   │   ├── bitmap.c
+│   │   ├── bitmap.h
 │   │   ├── io.h
 │   │   ├── print.h
 │   │   └── print.S
@@ -46,24 +37,13 @@
 │   ├── string.c
 │   ├── string.h
 │   └── user
-├── tmp
-│   ├── base_asm.c
-│   ├── header.bin
-│   ├── header.S
-│   ├── kernel_compile.sh
-│   ├── loader_compile.sh
-│   ├── makefile
-│   ├── mbr_compile.sh
-│   ├── run_test
-│   ├── syscall_write_demo.sh
-│   ├── syscall_write.S
-│   └── test_compile.sh
-├── bochsrc.disk
-├── hd60M.img
-├── log_bochs.txt
+├── tmp                 # 测试练习文件
+├── bochsrc.disk        # bochs参数文件
+├── hd60M.img           # 虚拟硬盘文件
+├── log_bochs.txt       # bochs日志文件
 ├── makefile
 ├── README.md
-├── start_bochs.sh
+├── start_bochs.sh      # 启动bochs脚本文件
 └── xxd.sh
 ```
 
