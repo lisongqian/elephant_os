@@ -1,6 +1,8 @@
 #ifndef __THREAD_THREAD_H
 #define __THREAD_THREAD_H
+
 #include "stdint.h"
+#include "list.h"
 
 /**
  * @description 自定义通用函数类型,它将在很多线程函数中做为形参类型
@@ -26,11 +28,11 @@ enum task_status {
 * 此栈在线程自己的内核栈中位置固定,所在页的最顶端
 ********************************************/
 struct intr_stack {
-    uint32_t vec_no;	 // kernel.S 宏VECTOR中push %1压入的中断号
+    uint32_t vec_no;     // kernel.S 宏VECTOR中push %1压入的中断号
     uint32_t edi;
     uint32_t esi;
     uint32_t ebp;
-    uint32_t esp_dummy;	 // 虽然pushad把esp也压入,但esp是不断变化的,所以会被popad忽略
+    uint32_t esp_dummy;     // 虽然pushad把esp也压入,但esp是不断变化的,所以会被popad忽略
     uint32_t ebx;
     uint32_t edx;
     uint32_t ecx;
@@ -41,8 +43,8 @@ struct intr_stack {
     uint32_t ds;
 
     /* 以下由cpu从低特权级进入高特权级时压入 */
-    uint32_t err_code;		 // err_code会被压入在eip之后
-    void (*eip) (void);
+    uint32_t err_code;         // err_code会被压入在eip之后
+    void (* eip)(void);
     uint32_t cs;
     uint32_t eflags;
     void* esp;
@@ -63,12 +65,12 @@ struct thread_stack {
 
     /* 线程第一次执行时,eip指向待调用的函数kernel_thread 
     其它时候,eip是指向switch_to的返回地址*/
-    void (*eip) (thread_func* func, void* func_arg);
+    void (* eip)(thread_func* func, void* func_arg);
 
     /*****   以下仅供第一次被调度上cpu时使用   ****/
 
     /* 参数unused_ret只为占位置充数为返回地址 */
-    void (*unused_retaddr);
+    void (* unused_retaddr);
     thread_func* function;   // 由Kernel_thread所调用的函数名
     void* func_arg;    // 由Kernel_thread所调用的函数所需的参数
 };
@@ -77,11 +79,19 @@ struct thread_stack {
  * @description 进程或线程的pcb,程序控制块
  */
 struct task_struct {
-    uint32_t* self_kstack;	 // 各内核线程都用自己的内核栈
+    uint32_t* self_kstack;          // 各内核线程都用自己的内核栈
     enum task_status status;
-    uint8_t priority;		 // 线程优先级
     char name[16];
-    uint32_t stack_magic;	 // 用这串数字做栈的边界标记,用于检测栈的溢出
+    uint8_t priority;               // 线程优先级
+
+    uint8_t ticks;                  // 每次在处理器上执行的时间嘀嗒数
+    uint32_t elapsed_ticks;         // 此任务自上cpu运行后至今占用了多少cpu嘀嗒数,即任务执行时间
+
+    struct list_elem general_tag;   // 用于线程在一般的队列中的结点
+    struct list_elem all_list_tag;  // 用于线程队列thread_all_list中的结点
+
+    uint32_t* pgdir;                // 进程自己页表的虚拟地址
+    uint32_t stack_magic;           // 用这串数字做栈的边界标记,用于检测栈的溢出
 };
 
 void thread_create(struct task_struct* pthread, thread_func function, void* func_arg);

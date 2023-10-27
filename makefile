@@ -59,7 +59,7 @@ $(BUILD_DIR)/memory.o: kernel/memory.c kernel/memory.h lib/stdint.h lib/kernel/b
 	$(CC) $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/thread.o: thread/thread.c thread/thread.h lib/stdint.h \
-    kernel/global.h lib/string.h kernel/memory.h
+    kernel/global.h lib/string.h kernel/memory.h lib/kernel/list.h
 	$(CC) $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/list.o: lib/kernel/list.c lib/kernel/list.h \
