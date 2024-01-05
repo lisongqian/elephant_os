@@ -1,6 +1,7 @@
 #include "print.h"
 #include "init.h"
 #include "thread.h"
+#include "interrupt.h"
 
 void k_thread_a(void*);
 
@@ -9,8 +10,12 @@ int main(void) {
     init_all();
 
     thread_start("k_thread_a", 31, k_thread_a, "argA ");
+    thread_start("k_thread_b", 8, k_thread_a, "argB ");
 
-    while (1);
+    intr_enable(); // 打开中断, 使时钟中断起作用
+    while (1) {
+        put_str("Main ");
+    }
     return 0;
 }
 

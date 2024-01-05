@@ -13,7 +13,7 @@ LDFLAGS = -m elf_i386 -Ttext $(ENTRY_POINT) -e main -Map $(BUILD_DIR)/kernel.map
 OBJS = $(BUILD_DIR)/main.o $(BUILD_DIR)/init.o $(BUILD_DIR)/interrupt.o \
       $(BUILD_DIR)/timer.o $(BUILD_DIR)/kernel.o $(BUILD_DIR)/print.o \
       $(BUILD_DIR)/debug.o $(BUILD_DIR)/string.o $(BUILD_DIR)/memory.o $(BUILD_DIR)/bitmap.o \
-      $(BUILD_DIR)/thread.o $(BUILD_DIR)/list.o
+      $(BUILD_DIR)/thread.o $(BUILD_DIR)/list.o $(BUILD_DIR)/switch.o
 
 ##############     MBR代码编译     ###############
 $(BUILD_DIR)/mbr.bin: boot/mbr.S
@@ -37,7 +37,7 @@ $(BUILD_DIR)/interrupt.o: kernel/interrupt.c kernel/interrupt.h \
 	$(CC) $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/timer.o: device/timer.c device/timer.h lib/stdint.h\
-         lib/kernel/io.h lib/kernel/print.h
+         lib/kernel/io.h lib/kernel/print.h kernel/debug.h
 	$(CC) $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/debug.o: kernel/debug.c kernel/debug.h \
@@ -71,6 +71,8 @@ $(BUILD_DIR)/kernel.o: kernel/kernel.S
 	$(AS) $(ASFLAGS) $< -o $@
 $(BUILD_DIR)/print.o: lib/kernel/print.S
 	$(AS) $(ASFLAGS) $< -o $@
+$(BUILD_DIR)/switch.o: thread/switch.S
+		$(AS) $(ASFLAGS) $< -o $@
 
 ##############    链接所有目标文件    #############
 $(BUILD_DIR)/kernel.bin: $(OBJS)
