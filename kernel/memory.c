@@ -222,29 +222,29 @@ static void mem_pool_init(uint32_t all_mem) {
     /******************** 输出内存池信息 **********************/
     put_str("      kernel_pool_bitmap_start:");
     put_int((int) kernel_pool.pool_bitmap.bits);
-    put_str("\n");
-    put_str("      kernel_pool_bitmap_end:");
-    put_int((int) kernel_pool.pool_bitmap.bits + kernel_pool.pool_bitmap.btmp_bytes_len);
-    put_str("\n");
+//    put_str("\n");
+//    put_str("      kernel_pool_bitmap_end:");
+//    put_int((int) kernel_pool.pool_bitmap.bits + kernel_pool.pool_bitmap.btmp_bytes_len);
+//    put_str("\n");
     put_str("       kernel_pool_phy_addr_start:");
     put_int(kernel_pool.phy_addr_start);
     put_str("\n");
-    put_str("       kernel_pool_phy_addr_end:");
-    put_int(kernel_pool.phy_addr_start + kernel_pool.pool_size);
-    put_str("\n");
+//    put_str("       kernel_pool_phy_addr_end:");
+//    put_int(kernel_pool.phy_addr_start + kernel_pool.pool_size);
+//    put_str("\n");
     put_str("      user_pool_bitmap_start:");
 
     put_int((int) user_pool.pool_bitmap.bits);
-    put_str("\n");
-    put_str("      user_pool_bitmap_end:");
-    put_int((int) user_pool.pool_bitmap.bits + user_pool.pool_bitmap.btmp_bytes_len);
-    put_str("\n");
+//    put_str("\n");
+//    put_str("      user_pool_bitmap_end:");
+//    put_int((int) user_pool.pool_bitmap.bits + user_pool.pool_bitmap.btmp_bytes_len);
+//    put_str("\n");
     put_str("       user_pool_phy_addr_start:");
     put_int(user_pool.phy_addr_start);
     put_str("\n");
-    put_str("       user_pool_phy_addr_end:");
-    put_int(user_pool.phy_addr_start + user_pool.pool_size);
-    put_str("\n");
+//    put_str("       user_pool_phy_addr_end:");
+//    put_int(user_pool.phy_addr_start + user_pool.pool_size);
+//    put_str("\n");
 
     /* 将位图置0*/
     bitmap_init(&kernel_pool.pool_bitmap);
@@ -259,10 +259,10 @@ static void mem_pool_init(uint32_t all_mem) {
     kernel_vaddr.vaddr_start = K_HEAP_START;
     put_str("     kernel_vaddr.vaddr_bitmap.start:");
     put_int((int) kernel_vaddr.vaddr_bitmap.bits);
-    put_str("\n");
-    put_str("     kernel_vaddr.vaddr_bitmap.end:");
-    put_int((int) kernel_vaddr.vaddr_bitmap.bits + kernel_vaddr.vaddr_bitmap.btmp_bytes_len);
-    put_str("\n");
+//    put_str("\n");
+//    put_str("     kernel_vaddr.vaddr_bitmap.end:");
+//    put_int((int) kernel_vaddr.vaddr_bitmap.bits + kernel_vaddr.vaddr_bitmap.btmp_bytes_len);
+//    put_str("\n");
 
     bitmap_init(&kernel_vaddr.vaddr_bitmap);
     put_str("   mem_pool_init done\n");
