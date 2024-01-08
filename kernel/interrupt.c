@@ -48,7 +48,7 @@ static void pic_init(void) {
 
     //eflags 里的 IF 位对所有外部中断有效，但不能屏蔽某个外设的中断了
     //测试键盘，只打开中断，其他全部关闭
-    outb(PIC_M_DATA, 0xfd);        //OCW1: 1111 1101
+    outb(PIC_M_DATA, 0xfc);        //OCW1: 1111 1101
     outb(PIC_S_DATA, 0xff);        //OCW1: 1111 1111
 
     put_str("    pic init done\n");
