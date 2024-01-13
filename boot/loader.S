@@ -18,7 +18,7 @@ VIDEO_DESC: dd      0x80000007      ;limit=(0xbffff - 0xb8000)/4k = 7
 GDT_SIZE        equ     $ - GDT_BASE    ;获取 GDT 大小
 GDT_LIMIT       equ     GDT_SIZE - 1    ;获取 段界限
 times   60      dq      0       ;预留60个空位，为以后填入中断描述符表和任务状态段TSS描述符留空间 （times 60 表示后面的内容循环60次，是nasm提供的伪指令）
-SELECTOR_CODE   equ     (0x0001 << 3) + TI_GDT + RPL0 ; 相当于(CODE DESC - GOT BASE) /8 + TI_GDT + RPLO
+SELECTOR_CODE   equ     (0x0001 << 3) + TI_GDT + RPL0 ; 相当于(CODE DESC - GDT BASE) /8 + TI_GDT + RPLO
 SELECTOR_DATA   equ     (0x0002 << 3) + TI_GDT + RPL0
 SELECTOR_VIDEO  equ     (0x0003 << 3) + TI_GDT + RPL0
 
