@@ -7,7 +7,6 @@
 #include "string.h"
 #include "sync.h"
 
-#define PG_SIZE 4096            // 页大小
 #define MEM_BITMAP_BASE 0xc009a000  // PCB占用4KB，内核主线程栈顶0xc009f000,故PCB地址为0xc009e00;支持4页位图，故再减去0x4000,即为所得
 #define K_HEAP_START 0xc0100000 // 0xc0000000是内核从虚拟地址3G起. 0x100000意指跨过低端1M内存,使虚拟地址在逻辑上连续
 
